@@ -1,74 +1,99 @@
-
-const path = require('path');
-const http = require('http');
-const express = require('express');
-const socketio = require('socket.io');
-const formatMessage = require('./helpers/formatDate')
+const path = require("path");
+const http = require("http");
+const express = require("express");
+const socketio = require("socket.io");
+const formatMessage = require("./helpers/formatDate");
 const {
+  getUsersOfConversation,
+  getExitedConversation,
+  getCurrentConversation,
+  newConversation,
   getActiveUser,
   exitRoom,
   newUser,
-  getIndividualRoomUsers
-} = require('./helpers/userHelper');
+  getIndividualRoomUsers,
+} = require("./helpers/userHelper");
 
 const app = express();
 const server = http.createServer(app);
 const io = socketio(server);
 
-// Set public directory
-app.use(express.static(path.join(__dirname, 'public')));
+/**  @description Set public directory */
+app.use(express.static(path.join(__dirname, "public")));
 
-// this block will run when the client connects
-io.on('connection', socket => {
-  socket.on('joinRoom', ({ username, room }) => {
+/**  @description this block will run when the client connects */
+io.on("connection", (socket) => {
+  socket.on("joinConversation", ({ username, respondentname, room }) => {
     const user = newUser(socket.id, username, room);
+    const conversation = newConversation(socket.id, username, respondentname);
+
+    console.info("index [26]", {
+      user,
+      username,
+      respondentname,
+      room,
+      conversation,
+    });
 
     socket.join(user.room);
+    // socket.join(conversation.idConversation);
 
-    // General welcome
-    socket.emit('message', formatMessage("WebCage", 'Messages are limited to this room! '));
+    /**  @description General welcome */
+    socket.emit(
+      "message",
+      formatMessage("WebCage", "Messages are limited to this room! ")
+    );
 
-    // Broadcast everytime users connects
+    /**  @description  Broadcast everytime users connects */
     socket.broadcast
       .to(user.room)
       .emit(
-        'message',
+        "message",
         formatMessage("WebCage", `${user.username} has joined the room`)
       );
 
-    // Current active users and room name
-    io.to(user.room).emit('roomUsers', {
+    /**  @description Current active users and room name */
+    io.to(user.room).emit("roomUsers", {
       room: user.room,
-      users: getIndividualRoomUsers(user.room)
+      users: getIndividualRoomUsers(user.room),
     });
   });
 
-  // Listen for client message
-  socket.on('chatMessage', msg => {
+  /**  @description Listen for client message */
+  socket.on("chatMessage", (msg) => {
     const user = getActiveUser(socket.id);
+    // const conversation = getCurrentConversation(socket.id)
 
-    io.to(user.room).emit('message', formatMessage(user.username, msg));
+    io.to(user.room).emit("message", formatMessage(user.username, msg));
+    // io.to(conversation.idConversation).emit("message", formatMessage(conversation.username, msg));
   });
 
-  // Runs when client disconnects
-  socket.on('disconnect', () => {
+  /**  @description Runs when client disconnects */
+  socket.on("disconnect", () => {
     const user = exitRoom(socket.id);
+    // const conversation = getExitedConversation(socket.id)
 
     if (user) {
       io.to(user.room).emit(
-        'message',
+        "message",
         formatMessage("WebCage", `${user.username} has left the room`)
       );
+      // io.to(conversation.idConversation).emit("message", formatMessage("WebCage", `${conversation.username} has left the room`));
 
-      // Current active users and room name
-      io.to(user.room).emit('roomUsers', {
+      /**  @description Current active users and room name */
+      io.to(user.room).emit("roomUsers", {
         room: user.room,
-        users: getIndividualRoomUsers(user.room)
+        users: getIndividualRoomUsers(user.room),
       });
+
+      // io.to(conversation.idConversation).emit("roomUsers", {
+      //   idConversation: conversation.idConversation,
+      //   users: getUsersOfConversation(conversation.idConversation),
+      // });
     }
   });
 });
 
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 3003;
 
 server.listen(PORT, () => console.log(`Server running on port ${PORT}`));
