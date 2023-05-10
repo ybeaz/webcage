@@ -52,11 +52,23 @@ io.on("connection", (socket) => {
         formatMessage("WebCage", `${user.username} has joined the room`)
       );
 
+    // socket.broadcast
+    //   .to(conversation.idConversation)
+    //   .emit(
+    //     "message",
+    //     formatMessage("WebCage", `${conversation.username} has joined the room`)
+    //   );
+
     /**  @description Current active users and room name */
     io.to(user.room).emit("roomUsers", {
       room: user.room,
       users: getIndividualRoomUsers(user.room),
     });
+
+    // io.to(conversation.idConversation).emit("roomUsers", {
+    //   idConversation: conversation.idConversation,
+    //   users: getUsersOfConversation(conversation.idConversation),
+    // });
   });
 
   /**  @description Listen for client message */
