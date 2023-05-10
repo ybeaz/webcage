@@ -4,14 +4,10 @@ const express = require("express");
 const socketio = require("socket.io");
 const formatMessage = require("./helpers/formatDate");
 const {
-  getUsersOfConversation,
+  getConversationsByIdConversation,
   getExitedConversation,
   getCurrentConversation,
   newConversation,
-  getActiveUser,
-  exitRoom,
-  newUser,
-  getIndividualRoomUsers,
 } = require("./helpers/userHelper");
 
 const app = express();
@@ -24,19 +20,18 @@ app.use(express.static(path.join(__dirname, "public")));
 /**  @description this block will run when the client connects */
 io.on("connection", (socket) => {
   socket.on("joinConversation", ({ username, respondentname, room }) => {
-    const user = newUser(socket.id, username, room);
     const conversation = newConversation(socket.id, username, respondentname);
 
     console.info("index [26]", {
-      user,
+      conversationsById: getConversationsByIdConversation(
+        conversation.idConversation
+      ),
       username,
       respondentname,
-      room,
       conversation,
     });
 
-    socket.join(user.room);
-    // socket.join(conversation.idConversation);
+    socket.join(conversation.idConversation);
 
     /**  @description General welcome */
     socket.emit(
@@ -46,62 +41,45 @@ io.on("connection", (socket) => {
 
     /**  @description  Broadcast everytime users connects */
     socket.broadcast
-      .to(user.room)
+      .to(conversation.idConversation)
       .emit(
         "message",
-        formatMessage("WebCage", `${user.username} has joined the room`)
+        formatMessage("WebCage", `${conversation.username} has joined the room`)
       );
 
-    // socket.broadcast
-    //   .to(conversation.idConversation)
-    //   .emit(
-    //     "message",
-    //     formatMessage("WebCage", `${conversation.username} has joined the room`)
-    //   );
-
     /**  @description Current active users and room name */
-    io.to(user.room).emit("roomUsers", {
-      room: user.room,
-      users: getIndividualRoomUsers(user.room),
+    io.to(conversation.idConversation).emit("roomUsers", {
+      idConversation: conversation.idConversation,
+      users: getConversationsByIdConversation(conversation.idConversation),
     });
-
-    // io.to(conversation.idConversation).emit("roomUsers", {
-    //   idConversation: conversation.idConversation,
-    //   users: getUsersOfConversation(conversation.idConversation),
-    // });
   });
 
   /**  @description Listen for client message */
   socket.on("chatMessage", (msg) => {
-    const user = getActiveUser(socket.id);
-    // const conversation = getCurrentConversation(socket.id)
+    const conversation = getCurrentConversation(socket.id);
 
-    io.to(user.room).emit("message", formatMessage(user.username, msg));
-    // io.to(conversation.idConversation).emit("message", formatMessage(conversation.username, msg));
+    io.to(conversation.idConversation).emit(
+      "message",
+      formatMessage(conversation.username, msg)
+    );
   });
 
   /**  @description Runs when client disconnects */
   socket.on("disconnect", () => {
-    const user = exitRoom(socket.id);
-    // const conversation = getExitedConversation(socket.id)
+    const conversation = getExitedConversation(socket.id);
 
-    if (user) {
-      io.to(user.room).emit(
+    if (conversation) {
+      io.to(conversation.idConversation).emit(
         "message",
-        formatMessage("WebCage", `${user.username} has left the room`)
+        formatMessage("WebCage", `${conversation.username} has left the room`)
       );
-      // io.to(conversation.idConversation).emit("message", formatMessage("WebCage", `${conversation.username} has left the room`));
 
       /**  @description Current active users and room name */
-      io.to(user.room).emit("roomUsers", {
-        room: user.room,
-        users: getIndividualRoomUsers(user.room),
-      });
 
-      // io.to(conversation.idConversation).emit("roomUsers", {
-      //   idConversation: conversation.idConversation,
-      //   users: getUsersOfConversation(conversation.idConversation),
-      // });
+      io.to(conversation.idConversation).emit("roomUsers", {
+        idConversation: conversation.idConversation,
+        users: getConversationsByIdConversation(conversation.idConversation),
+      });
     }
   });
 });
