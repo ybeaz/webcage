@@ -1,8 +1,28 @@
-let conversations = [];
+let conversations =
+  []; /** @example [{ idConversation: '["@rome","@smid"]', idProfiles: [Array] }] */
+let profiles =
+  []; /** @example [{ idProfile: '@rome', idSocket: 'ArYnDsqrA3AyR9z4AAAF', username: '@rome' }] */
 
 const getSortedArray = (arr) => arr.sort((a, b) => a.localeCompare(b));
 
+const getProfileBy = (propName, value) => {
+  const profileFound = profiles((profile) => profile[propName] === value);
+  return profileFound;
+};
+
+const getAddedProfile = ({ idSocket, idProfile, profilename }) => {
+  const profileFound = profiles.find(
+    (profile) =>
+      profile.idSocket === idSocket && profile.idProfile === idProfile
+  );
+  if (!profileFound) {
+    const profileNew = { idSocket, idProfile, profilename };
+    profiles = [...profiles, profileNew];
+  }
+};
+
 const getConversation = (idSocket, username, respondentname) => {
+  getAddedProfile({ idSocket, idProfile: username, profilename: username });
   const idsProfiles = getSortedArray([username, respondentname]);
   const idConversation = JSON.stringify(idsProfiles);
   const conversation = {
