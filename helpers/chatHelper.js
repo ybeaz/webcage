@@ -1,41 +1,21 @@
 let conversations =
-  []; /** @example [{ idConversation: '["@rome","@smid"]', idProfiles: [Array] }] */
-let profiles =
-  []; /** @example [{ idProfile: '@rome', idSocket: 'ArYnDsqrA3AyR9z4AAAF', profileName: '@rome' }] */
+  []; /** @example [{ idConversation: '["@rome","@smid"]', profiles: [Array] }] */
 
 const getSortedArray = (arr) => arr.sort((a, b) => a.localeCompare(b));
 
-const getProfileBy = (propName, value) => {
-  const profileFound = profiles((profile) => profile[propName] === value);
+const getFoundElementBy = (arr, propName, value) => {
+  const profileFound = arr((profile) => profile[propName] === value);
   return profileFound;
 };
 
-const getAddedProfile = ({ idSocket, idProfile, profileName }) => {
-  const profileFound = profiles.find(
-    (profile) =>
-      profile.idSocket === idSocket && profile.idProfile === idProfile
-  );
-  if (!profileFound) {
-    const profileNew = { idSocket, idProfile, profileName };
-    profiles = [...profiles, profileNew];
-  }
-};
+const getAddedConversation = (props) => {
+  const { idSocket, profileName, respondentname } = props;
 
-const getConversation = ({
-  idSocket,
-  idProfile,
-  profileName,
-  respondentname,
-}) => {
-  getAddedProfile({
-    idSocket,
-    idProfile,
-    profileName,
-  });
   const idsProfiles = getSortedArray([profileName, respondentname]);
   const idConversation = JSON.stringify(idsProfiles);
   const conversation = {
     idConversation,
+    idsSockets: [],
     idsProfiles,
     idSocket,
     profileName,
@@ -79,5 +59,5 @@ module.exports = {
   getConversationsByIdConversation,
   getExitedConversation,
   getCurrentConversation,
-  getConversation,
+  getAddedConversation,
 };

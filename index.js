@@ -7,8 +7,8 @@ const {
   getConversationsByIdConversation,
   getExitedConversation,
   getCurrentConversation,
-  getConversation,
-} = require("./helpers/userHelper");
+  getAddedConversation,
+} = require("./helpers/chatHelper");
 
 const app = express();
 const server = http.createServer(app);
@@ -20,9 +20,8 @@ app.use(express.static(path.join(__dirname, "public")));
 /**  @description this block will run when the client connects */
 io.on("connection", (socket) => {
   socket.on("joinConversation", ({ profileName, respondentname }) => {
-    const conversation = getConversation({
+    const conversation = getAddedConversation({
       idSocket: socket.id,
-      idProfile: profileName,
       profileName,
       respondentname,
     });
