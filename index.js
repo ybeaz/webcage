@@ -19,12 +19,13 @@ app.use(express.static(path.join(__dirname, "public")));
 
 /**  @description this block will run when the client connects */
 io.on("connection", (socket) => {
-  socket.on("joinConversation", ({ profileName, respondentname, room }) => {
-    const conversation = getConversation(
-      socket.id,
+  socket.on("joinConversation", ({ profileName, respondentname }) => {
+    const conversation = getConversation({
+      idSocket: socket.id,
+      idProfile: profileName,
       profileName,
-      respondentname
-    );
+      respondentname,
+    });
 
     console.info("index [26]", {
       conversationsById: getConversationsByIdConversation(

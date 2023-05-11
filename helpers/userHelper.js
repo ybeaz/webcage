@@ -10,22 +10,27 @@ const getProfileBy = (propName, value) => {
   return profileFound;
 };
 
-const getAddedProfile = ({ idSocket, idProfile, profilename }) => {
+const getAddedProfile = ({ idSocket, idProfile, profileName }) => {
   const profileFound = profiles.find(
     (profile) =>
       profile.idSocket === idSocket && profile.idProfile === idProfile
   );
   if (!profileFound) {
-    const profileNew = { idSocket, idProfile, profilename };
+    const profileNew = { idSocket, idProfile, profileName };
     profiles = [...profiles, profileNew];
   }
 };
 
-const getConversation = (idSocket, profileName, respondentname) => {
+const getConversation = ({
+  idSocket,
+  idProfile,
+  profileName,
+  respondentname,
+}) => {
   getAddedProfile({
     idSocket,
-    idProfile: profileName,
-    profilename: profileName,
+    idProfile,
+    profileName,
   });
   const idsProfiles = getSortedArray([profileName, respondentname]);
   const idConversation = JSON.stringify(idsProfiles);
