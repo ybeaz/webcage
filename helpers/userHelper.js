@@ -1,8 +1,17 @@
 let conversations = [];
 
+const getSortedArray = (arr) => arr.sort((a, b) => a.localeCompare(b));
+
 const newConversation = (idSocket, username, respondentname) => {
-  const idConversation = getSortedStringifyArray([username, respondentname]);
-  const conversation = { idSocket, idConversation, username, respondentname };
+  const idsProfiles = getSortedArray([username, respondentname]);
+  const idConversation = JSON.stringify(idsProfiles);
+  const conversation = {
+    idConversation,
+    idsProfiles,
+    idSocket,
+    username,
+    respondentname,
+  };
   const conversationPrev = conversations.find(
     (conversation) => conversation.idConversation === idConversation
   );
@@ -29,18 +38,17 @@ function getExitedConversation(idSocket) {
 }
 
 function getConversationsByIdConversation(idConversation) {
-  return conversations.filter(
+  const output = conversations.filter(
     (conversation) => conversation.idConversation === idConversation
   );
-}
 
-const getSortedStringifyArray = (arr) =>
-  JSON.stringify(arr.sort((a, b) => a.localeCompare(b)));
+  console.info("userHelper [36]", { conversations });
+  return output;
+}
 
 module.exports = {
   getConversationsByIdConversation,
   getExitedConversation,
   getCurrentConversation,
   newConversation,
-  getSortedStringifyArray,
 };

@@ -48,7 +48,7 @@ io.on("connection", (socket) => {
       );
 
     /**  @description Current active users and room name */
-    io.to(conversation.idConversation).emit("roomUsers", {
+    io.to(conversation.idConversation).emit("conversations", {
       idConversation: conversation.idConversation,
       users: getConversationsByIdConversation(conversation.idConversation),
     });
@@ -76,7 +76,7 @@ io.on("connection", (socket) => {
 
       /**  @description Current active users and room name */
 
-      io.to(conversation.idConversation).emit("roomUsers", {
+      io.to(conversation.idConversation).emit("conversations", {
         idConversation: conversation.idConversation,
         users: getConversationsByIdConversation(conversation.idConversation),
       });
