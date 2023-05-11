@@ -2,7 +2,7 @@ let conversations = [];
 
 const getSortedArray = (arr) => arr.sort((a, b) => a.localeCompare(b));
 
-const newConversation = (idSocket, username, respondentname) => {
+const getConversation = (idSocket, username, respondentname) => {
   const idsProfiles = getSortedArray([username, respondentname]);
   const idConversation = JSON.stringify(idsProfiles);
   const conversation = {
@@ -50,5 +50,5 @@ module.exports = {
   getConversationsByIdConversation,
   getExitedConversation,
   getCurrentConversation,
-  newConversation,
+  getConversation,
 };
