@@ -19,14 +19,18 @@ app.use(express.static(path.join(__dirname, "public")));
 
 /**  @description this block will run when the client connects */
 io.on("connection", (socket) => {
-  socket.on("joinConversation", ({ username, respondentname, room }) => {
-    const conversation = getConversation(socket.id, username, respondentname);
+  socket.on("joinConversation", ({ profileName, respondentname, room }) => {
+    const conversation = getConversation(
+      socket.id,
+      profileName,
+      respondentname
+    );
 
     console.info("index [26]", {
       conversationsById: getConversationsByIdConversation(
         conversation.idConversation
       ),
-      username,
+      profileName,
       respondentname,
       conversation,
     });
@@ -44,7 +48,10 @@ io.on("connection", (socket) => {
       .to(conversation.idConversation)
       .emit(
         "message",
-        formatMessage("WebCage", `${conversation.username} has joined the room`)
+        formatMessage(
+          "WebCage",
+          `${conversation.profileName} has joined the room`
+        )
       );
 
     /**  @description Current active users and room name */
@@ -60,7 +67,7 @@ io.on("connection", (socket) => {
 
     io.to(conversation.idConversation).emit(
       "message",
-      formatMessage(conversation.username, msg)
+      formatMessage(conversation.profileName, msg)
     );
   });
 
@@ -71,7 +78,10 @@ io.on("connection", (socket) => {
     if (conversation) {
       io.to(conversation.idConversation).emit(
         "message",
-        formatMessage("WebCage", `${conversation.username} has left the room`)
+        formatMessage(
+          "WebCage",
+          `${conversation.profileName} has left the room`
+        )
       );
 
       /**  @description Current active users and room name */

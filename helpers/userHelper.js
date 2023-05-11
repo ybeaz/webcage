@@ -1,7 +1,7 @@
 let conversations =
   []; /** @example [{ idConversation: '["@rome","@smid"]', idProfiles: [Array] }] */
 let profiles =
-  []; /** @example [{ idProfile: '@rome', idSocket: 'ArYnDsqrA3AyR9z4AAAF', username: '@rome' }] */
+  []; /** @example [{ idProfile: '@rome', idSocket: 'ArYnDsqrA3AyR9z4AAAF', profileName: '@rome' }] */
 
 const getSortedArray = (arr) => arr.sort((a, b) => a.localeCompare(b));
 
@@ -21,21 +21,25 @@ const getAddedProfile = ({ idSocket, idProfile, profilename }) => {
   }
 };
 
-const getConversation = (idSocket, username, respondentname) => {
-  getAddedProfile({ idSocket, idProfile: username, profilename: username });
-  const idsProfiles = getSortedArray([username, respondentname]);
+const getConversation = (idSocket, profileName, respondentname) => {
+  getAddedProfile({
+    idSocket,
+    idProfile: profileName,
+    profilename: profileName,
+  });
+  const idsProfiles = getSortedArray([profileName, respondentname]);
   const idConversation = JSON.stringify(idsProfiles);
   const conversation = {
     idConversation,
     idsProfiles,
     idSocket,
-    username,
+    profileName,
     respondentname,
   };
   const conversationPrev = conversations.find(
     (conversation) => conversation.idConversation === idConversation
   );
-  if (!conversationPrev || conversationPrev.username !== username)
+  if (!conversationPrev || conversationPrev.profileName !== profileName)
     conversations = [...conversations, conversation];
   return conversation;
 };

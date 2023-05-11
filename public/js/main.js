@@ -4,17 +4,17 @@ const roomName = document.getElementById("room-name");
 const userList = document.getElementById("users");
 const respondent = document.getElementById("respondent");
 
-/** @description Get username and room from URL */
-const { username, respondentname, room } = Qs.parse(location.search, {
+/** @description Get profileName and room from URL */
+const { profileName, respondentname, room } = Qs.parse(location.search, {
   ignoreQueryPrefix: true,
 });
 
-console.log({ username, respondentname, room });
+console.log({ profileName, respondentname, room });
 
 const socket = io();
 
 /** @description Join chatroom */
-socket.emit("joinConversation", { username, respondentname, room });
+socket.emit("joinConversation", { profileName, respondentname, room });
 
 /** @description Get room and users */
 socket.on("conversations", ({ room, respondentname, users }) => {
@@ -58,7 +58,7 @@ function outputMessage(message) {
   div.classList.add("message");
   const p = document.createElement("p");
   p.classList.add("meta");
-  p.innerText = message.username;
+  p.innerText = message.profileName;
   p.innerHTML += `<span>${message.time}</span>`;
   div.appendChild(p);
   const para = document.createElement("p");
@@ -80,7 +80,7 @@ function outputUsers(users) {
   userList.innerHTML = "";
   users.forEach((user) => {
     const li = document.createElement("li");
-    li.innerText = user.username;
+    li.innerText = user.profileName;
     userList.appendChild(li);
   });
 }
