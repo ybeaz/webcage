@@ -1,24 +1,39 @@
 const chatForm = document.getElementById("chat-form");
 const chatMessages = document.querySelector(".chat-messages");
-const roomName = document.getElementById("room-name");
 const userList = document.getElementById("users");
 const respondent = document.getElementById("respondent");
 
-/** @description Get profileName and room from URL */
-const { profileName, respondentname, room } = Qs.parse(location.search, {
+/*
+• io.of(namespace): Creates a separate namespace for Socket.IO connections.
+• io.on(eventName, callback): Listens for a specific event on the server side.
+• io.sockets.emit(eventName, data): Emits an event to all connected clients.
+• io.to(roomName).emit(eventName, data): Sends an event to all clients in a specific room.
+• io.use(middleware): Registers a middleware function to be executed for every incoming connection.
+• socket.broadcast.emit(eventName, data): Emits an event to all clients except the current one.
+• socket.disconnect(): Disconnects the client from the server.
+• socket.emit(eventName, data): Emits an event from the server to a specific client or clients.
+• socket.id: Returns the unique identifier for the client's socket connection.
+• socket.join(roomName): Makes a client join a specific room.
+• socket.leave(roomName): Makes a client leave a specific room.
+• socket.on(eventName, callback): Listens for a specific event on the client side.
+*/
+
+/** @description Get profileName and from URL */
+const { profileName, respondentname } = Qs.parse(location.search, {
   ignoreQueryPrefix: true,
 });
 
-console.log({ profileName, respondentname, room });
+console.info("main [11]", { profileName, respondentname });
 
-const socket = io();
+const socket = io("http://localhost:3003");
 
 /** @description Join chatroom */
-socket.emit("joinConversation", { profileName, respondentname, room });
+socket.emit("joinConversation", { profileName, respondentname });
 
-/** @description Get room and users */
-socket.on("conversations", ({ room, respondentname, users }) => {
-  // outputRoomName(room);
+/** @description Get users */
+socket.on("conversations", (socket) => {
+  const { users } = socket;
+  console.info("main [20]", { users, socket });
   outputUsers(users);
 });
 
@@ -68,9 +83,8 @@ function outputMessage(message) {
   document.querySelector(".chat-messages").appendChild(div);
 }
 
-/** @description Add room name to DOM */
-function outputRoomName(room) {
-  // roomName.innerText = room;
+/** @description Add name to DOM */
+function outputRoomName() {
   respondent.innerText = respondentname;
 }
 
@@ -85,7 +99,7 @@ function outputUsers(users) {
   });
 }
 
-/** @description Prompt the user before leave chat room */
+/** @description Prompt the user before leave chat */
 document.getElementById("leave-btn").addEventListener("click", () => {
   const leaveRoom = confirm("Are you sure you want to leave the chatroom?");
   if (leaveRoom) {

@@ -2,6 +2,7 @@ const path = require("path");
 const http = require("http");
 const express = require("express");
 const socketio = require("socket.io");
+const cors = require("cors");
 const formatMessage = require("./helpers/formatDate");
 const {
   getConversationsByIdConversation,
@@ -12,13 +13,19 @@ const {
 
 const app = express();
 const server = http.createServer(app);
-const io = socketio(server);
+const io = socketio(server, {
+  cors: {
+    origin: "*",
+  },
+});
 
 /**  @description Set public directory */
 app.use(express.static(path.join(__dirname, "public")));
 
 /**  @description this block will run when the client connects */
 io.on("connection", (socket) => {
+  // console.info("index [28]", { socket });
+
   socket.on("joinConversation", ({ profileName, respondentname }) => {
     const conversation = getAddedConversation({
       idSocket: socket.id,
