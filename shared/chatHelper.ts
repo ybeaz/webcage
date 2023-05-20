@@ -25,6 +25,7 @@ export const getJoinedConversation: GetJoinedConversationType = props => {
 
   const idsProfiles = getSortedArray([profileNameHost, profileName])
   const idConversation = JSON.stringify(idsProfiles)
+
   let conversation: ConversationType | undefined = undefined
 
   const conversationPrev = conversations.find(
@@ -37,22 +38,29 @@ export const getJoinedConversation: GetJoinedConversationType = props => {
     profileNameHost,
     profileName,
     conversationPrev,
+    '!conversationPrev?.idConversation': !conversationPrev?.idConversation,
   })
 
-  if (
-    !conversationPrev?.idConversation ||
-    conversationPrev.profileNameHost !== profileNameHost
-  ) {
+  if (!conversationPrev?.idConversation) {
     conversation = {
       idConversation,
-      idsSockets: [],
-      idsProfiles,
-      idSocket,
-      profileNameHost,
-      profileName,
+      profiles: [{ idSocket, profileName: profileNameHost }],
     }
     conversations = [...conversations, conversation]
+  } else if (
+    conversationPrev?.idConversation &&
+    conversationPrev?.profiles.length === 1
+  ) {
+    const { profiles } = conversationPrev
+    conversation = {
+      ...conversationPrev,
+      profiles: [...profiles, { idSocket, profileName: profileNameHost }],
+    }
   }
+
+  console.info('chatHelper [59]', { profiles: conversation?.profiles })
+  console.info('chatHelper [60]', conversations[0].profiles)
+  console.info('\n\n')
 
   return conversation
 }
@@ -60,15 +68,18 @@ export const getJoinedConversation: GetJoinedConversationType = props => {
 export const getCurrentConversation = function (
   idSocket: string
 ): ConversationType | undefined {
-  return conversations.find(conversation => conversation.idSocket === idSocket)
+  return conversations.find(conversation =>
+    conversation.profiles.filter(profile => profile.idSocket === idSocket)
+  )
 }
 
 export function getExitedConversation(idSocket: string) {
-  const conversation = conversations.find(
-    conversation => conversation.idSocket === idSocket
+  const conversation = conversations.find(conversation =>
+    conversation.profiles.filter(profile => profile.idSocket === idSocket)
   )
   conversations = conversations.filter(
-    conversation => conversation.idSocket !== idSocket
+    conversation =>
+      !conversation.profiles.filter(profile => profile.idSocket === idSocket)
   )
 
   return conversation
@@ -82,10 +93,3 @@ export function getConversationsByIdConversation(idConversation: string) {
   // console.info("chatHelper [64]", { conversations });
   return output
 }
-
-// module.exports = {
-//   getConversationsByIdConversation,
-//   getExitedConversation,
-//   getCurrentConversation,
-//   getJoinedConversation,
-// }

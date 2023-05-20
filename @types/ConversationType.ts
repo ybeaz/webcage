@@ -1,8 +1,6 @@
+import { ProfileType } from './ProfileType'
+
 export type ConversationType = {
   idConversation: string
-  idsSockets: string[]
-  idsProfiles: string
-  idSocket: string
-  profileNameHost: string
-  profileName: string
+  profiles: ProfileType[]
 }

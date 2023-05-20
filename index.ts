@@ -4,6 +4,7 @@ const express = require('express')
 const socketio = require('socket.io')
 const cors = require('cors')
 
+import { ProfileType } from './@types/ProfileType'
 import { ConversationType } from './@types/ConversationType'
 import { formatMessage } from './shared/formatDate'
 import {
@@ -63,16 +64,17 @@ io.on('connection', socket => {
       .to(conversation.idConversation)
       .emit(
         'message',
-        formatMessage(
-          'WebCage',
-          `${conversation.profileNameHost} has joined the room`
-        )
+        formatMessage('WebCage', `${profileNameHost} has joined the room`)
       )
 
     /**  @description Current active users and room name */
-    io.to(conversation.idConversation).emit('conversations', {
-      idConversation: conversation.idConversation,
+    console.info('index [70]', { conversation })
+    console.info('index [71]', { profiles: conversation.profiles })
+    console.info('index [72]', {
       users: getConversationsByIdConversation(conversation.idConversation),
+    })
+    io.to(conversation.idConversation).emit('conversations', {
+      conversation,
     })
   })
 
@@ -81,24 +83,27 @@ io.on('connection', socket => {
     const conversation: ConversationType | undefined = getCurrentConversation(
       socket.id
     )
+    const profile: ProfileType | undefined = conversation?.profiles.find(
+      profile => profile.idSocket === socket.id
+    )
 
     io.to(conversation?.idConversation).emit(
       'message',
-      formatMessage(conversation?.profileNameHost, msg)
+      formatMessage(profile?.profileName, msg)
     )
   })
 
   /**  @description Runs when client disconnects */
   socket.on('disconnect', () => {
     const conversation = getExitedConversation(socket.id)
+    const profileNameHost = conversation?.profiles.filter(
+      profile => profile.idSocket === socket.id
+    )
 
     if (conversation) {
       io.to(conversation.idConversation).emit(
         'message',
-        formatMessage(
-          'WebCage',
-          `${conversation.profileNameHost} has left the room`
-        )
+        formatMessage('WebCage', `${profileNameHost} has left the room`)
       )
 
       /**  @description Current active users and room name */
@@ -113,4 +118,8 @@ io.on('connection', socket => {
 
 const PORT = process.env.PORT || 3003
 
-server.listen(PORT, () => console.log(`Server running on port ${PORT}`))
+server.listen(PORT, () => {
+  console.log(`\n\n\n---------------------------------------------`)
+  console.log(`Server running on port ${PORT}`)
+  console.log(`---------------------------------------------\n\n\n`)
+})

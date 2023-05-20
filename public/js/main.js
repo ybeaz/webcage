@@ -1,7 +1,7 @@
-const chatForm = document.getElementById("chat-form");
-const chatMessages = document.querySelector(".chat-messages");
-const userList = document.getElementById("users");
-const respondent = document.getElementById("respondent");
+const chatForm = document.getElementById('chat-form')
+const chatMessages = document.querySelector('.chat-messages')
+const userList = document.getElementById('users')
+const respondent = document.getElementById('respondent')
 
 /*
 • io.of(namespace): Creates a separate namespace for Socket.IO connections.
@@ -21,89 +21,91 @@ const respondent = document.getElementById("respondent");
 /** @description Get profileNameHost and from URL */
 const { profileNameHost, profileName } = Qs.parse(location.search, {
   ignoreQueryPrefix: true,
-});
+})
 
-console.info("main [11]", { profileNameHost, profileName });
+console.info('main [11]', { profileNameHost, profileName })
 
-const socket = io("http://localhost:3003");
+const socket = io('http://localhost:3003')
 
 /** @description Join chatroom */
-socket.emit("joinConversation", { profileNameHost, profileName });
+socket.emit('joinConversation', { profileNameHost, profileName })
 
 /** @description Get users */
-socket.on("conversations", (socket) => {
-  const { users } = socket;
-  console.info("main [20]", { users, socket });
-  outputUsers(users);
-});
+socket.on('conversations', socket => {
+  const {
+    conversation: { profiles },
+  } = socket
+  console.info('main [20]', { profiles })
+  outputProfiles(profiles)
+})
 
 /** @description Message from server */
-socket.on("message", (message) => {
-  console.log(message);
-  outputMessage(message);
+socket.on('message', message => {
+  console.log(message)
+  outputMessage(message)
 
   /** @description Scroll down */
-  chatMessages.scrollTop = chatMessages.scrollHeight;
-});
+  chatMessages.scrollTop = chatMessages.scrollHeight
+})
 
 /** @description Message submit */
-chatForm.addEventListener("submit", (e) => {
-  e.preventDefault();
+chatForm.addEventListener('submit', e => {
+  e.preventDefault()
 
   /** @description Get message text */
-  let msg = e.target.elements.msg.value;
+  let msg = e.target.elements.msg.value
 
-  msg = msg.trim();
+  msg = msg.trim()
 
   if (!msg) {
-    return false;
+    return false
   }
 
   /** @description Emit message to server */
-  socket.emit("chatMessage", msg);
+  socket.emit('chatMessage', msg)
 
   /** @description Clear input */
-  e.target.elements.msg.value = "";
-  e.target.elements.msg.focus();
-});
+  e.target.elements.msg.value = ''
+  e.target.elements.msg.focus()
+})
 
 /** @description Output message to DOM */
 function outputMessage(message) {
-  const div = document.createElement("div");
-  div.classList.add("message");
-  const p = document.createElement("p");
-  p.classList.add("meta");
-  p.innerText = message.profileNameHost;
-  p.innerHTML += `<span>${message.time}</span>`;
-  div.appendChild(p);
-  const para = document.createElement("p");
-  para.classList.add("text");
-  para.innerText = message.text;
-  div.appendChild(para);
-  document.querySelector(".chat-messages").appendChild(div);
+  console.info('main [74]', { message })
+  const div = document.createElement('div')
+  div.classList.add('message')
+  const p = document.createElement('p')
+  p.classList.add('meta')
+  p.innerText = message.profileName
+  p.innerHTML += `<span>${message.time}</span>`
+  div.appendChild(p)
+  const para = document.createElement('p')
+  para.classList.add('text')
+  para.innerText = message.text
+  div.appendChild(para)
+  document.querySelector('.chat-messages').appendChild(div)
 }
 
 /** @description Add name to DOM */
 function outputRoomName() {
-  respondent.innerText = profileName;
+  respondent.innerText = profileName
 }
 
 /** @description Add users to DOM */
-function outputUsers(users) {
-  console.log({ users });
-  userList.innerHTML = "";
-  users.forEach((user) => {
-    const li = document.createElement("li");
-    li.innerText = user.profileNameHost;
-    userList.appendChild(li);
-  });
+function outputProfiles(profiles) {
+  userList.innerHTML = ''
+  profiles.forEach(profile => {
+    const li = document.createElement('li')
+    li.innerText = profile.profileName
+    userList.appendChild(li)
+  })
 }
 
 /** @description Prompt the user before leave chat */
-document.getElementById("leave-btn").addEventListener("click", () => {
-  const leaveRoom = confirm("Are you sure you want to leave the chatroom?");
+document.getElementById('leave-btn').addEventListener('click', () => {
+  const leaveRoom = confirm('Are you sure you want to leave the chatroom?')
   if (leaveRoom) {
-    window.location = "../index.html";
+    window.location = '../index.html'
   } else {
   }
-});
+})

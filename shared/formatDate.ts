@@ -1,8 +1,11 @@
 const moment = require('moment')
 
-export function formatMessage(profileNameHost, text) {
+export function formatMessage(
+  profileName: string | undefined,
+  text: string
+): any {
   return {
-    profileNameHost,
+    profileName,
     text,
     time: moment().format('h:mm a'),
   }
