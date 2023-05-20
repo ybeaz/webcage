@@ -19,16 +19,16 @@ const respondent = document.getElementById("respondent");
 */
 
 /** @description Get profileNameHost and from URL */
-const { profileNameHost, respondentname } = Qs.parse(location.search, {
+const { profileNameHost, profileName } = Qs.parse(location.search, {
   ignoreQueryPrefix: true,
 });
 
-console.info("main [11]", { profileNameHost, respondentname });
+console.info("main [11]", { profileNameHost, profileName });
 
 const socket = io("http://localhost:3003");
 
 /** @description Join chatroom */
-socket.emit("joinConversation", { profileNameHost, respondentname });
+socket.emit("joinConversation", { profileNameHost, profileName });
 
 /** @description Get users */
 socket.on("conversations", (socket) => {
@@ -85,7 +85,7 @@ function outputMessage(message) {
 
 /** @description Add name to DOM */
 function outputRoomName() {
-  respondent.innerText = respondentname;
+  respondent.innerText = profileName;
 }
 
 /** @description Add users to DOM */

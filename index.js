@@ -26,11 +26,11 @@ app.use(express.static(path.join(__dirname, "public")));
 io.on("connection", (socket) => {
   // console.info("index [28]", { socket });
 
-  socket.on("joinConversation", ({ profileNameHost, respondentname }) => {
+  socket.on("joinConversation", ({ profileNameHost, profileName }) => {
     const conversation = getAddedConversation({
       idSocket: socket.id,
       profileNameHost,
-      respondentname,
+      profileName,
     });
 
     console.info("index [26]", {
@@ -38,7 +38,7 @@ io.on("connection", (socket) => {
         conversation.idConversation
       ),
       profileNameHost,
-      respondentname,
+      profileName,
       conversation,
     });
 

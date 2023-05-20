@@ -9,9 +9,9 @@ const getFoundElementBy = (arr, propName, value) => {
 };
 
 const getAddedConversation = (props) => {
-  const { idSocket, profileNameHost, respondentname } = props;
+  const { idSocket, profileNameHost, profileName } = props;
 
-  const idsProfiles = getSortedArray([profileNameHost, respondentname]);
+  const idsProfiles = getSortedArray([profileNameHost, profileName]);
   const idConversation = JSON.stringify(idsProfiles);
   const conversation = {
     idConversation,
@@ -19,7 +19,7 @@ const getAddedConversation = (props) => {
     idsProfiles,
     idSocket,
     profileNameHost,
-    respondentname,
+    profileName,
   };
   const conversationPrev = conversations.find(
     (conversation) => conversation.idConversation === idConversation
