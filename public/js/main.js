@@ -18,17 +18,17 @@ const respondent = document.getElementById("respondent");
 • socket.on(eventName, callback): Listens for a specific event on the client side.
 */
 
-/** @description Get profileName and from URL */
-const { profileName, respondentname } = Qs.parse(location.search, {
+/** @description Get profileNameHost and from URL */
+const { profileNameHost, respondentname } = Qs.parse(location.search, {
   ignoreQueryPrefix: true,
 });
 
-console.info("main [11]", { profileName, respondentname });
+console.info("main [11]", { profileNameHost, respondentname });
 
 const socket = io("http://localhost:3003");
 
 /** @description Join chatroom */
-socket.emit("joinConversation", { profileName, respondentname });
+socket.emit("joinConversation", { profileNameHost, respondentname });
 
 /** @description Get users */
 socket.on("conversations", (socket) => {
@@ -73,7 +73,7 @@ function outputMessage(message) {
   div.classList.add("message");
   const p = document.createElement("p");
   p.classList.add("meta");
-  p.innerText = message.profileName;
+  p.innerText = message.profileNameHost;
   p.innerHTML += `<span>${message.time}</span>`;
   div.appendChild(p);
   const para = document.createElement("p");
@@ -94,7 +94,7 @@ function outputUsers(users) {
   userList.innerHTML = "";
   users.forEach((user) => {
     const li = document.createElement("li");
-    li.innerText = user.profileName;
+    li.innerText = user.profileNameHost;
     userList.appendChild(li);
   });
 }

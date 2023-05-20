@@ -26,10 +26,10 @@ app.use(express.static(path.join(__dirname, "public")));
 io.on("connection", (socket) => {
   // console.info("index [28]", { socket });
 
-  socket.on("joinConversation", ({ profileName, respondentname }) => {
+  socket.on("joinConversation", ({ profileNameHost, respondentname }) => {
     const conversation = getAddedConversation({
       idSocket: socket.id,
-      profileName,
+      profileNameHost,
       respondentname,
     });
 
@@ -37,7 +37,7 @@ io.on("connection", (socket) => {
       conversationsById: getConversationsByIdConversation(
         conversation.idConversation
       ),
-      profileName,
+      profileNameHost,
       respondentname,
       conversation,
     });
@@ -57,7 +57,7 @@ io.on("connection", (socket) => {
         "message",
         formatMessage(
           "WebCage",
-          `${conversation.profileName} has joined the room`
+          `${conversation.profileNameHost} has joined the room`
         )
       );
 
@@ -74,7 +74,7 @@ io.on("connection", (socket) => {
 
     io.to(conversation.idConversation).emit(
       "message",
-      formatMessage(conversation.profileName, msg)
+      formatMessage(conversation.profileNameHost, msg)
     );
   });
 
@@ -87,7 +87,7 @@ io.on("connection", (socket) => {
         "message",
         formatMessage(
           "WebCage",
-          `${conversation.profileName} has left the room`
+          `${conversation.profileNameHost} has left the room`
         )
       );
 

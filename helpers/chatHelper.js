@@ -9,22 +9,22 @@ const getFoundElementBy = (arr, propName, value) => {
 };
 
 const getAddedConversation = (props) => {
-  const { idSocket, profileName, respondentname } = props;
+  const { idSocket, profileNameHost, respondentname } = props;
 
-  const idsProfiles = getSortedArray([profileName, respondentname]);
+  const idsProfiles = getSortedArray([profileNameHost, respondentname]);
   const idConversation = JSON.stringify(idsProfiles);
   const conversation = {
     idConversation,
     idsSockets: [],
     idsProfiles,
     idSocket,
-    profileName,
+    profileNameHost,
     respondentname,
   };
   const conversationPrev = conversations.find(
     (conversation) => conversation.idConversation === idConversation
   );
-  if (!conversationPrev || conversationPrev.profileName !== profileName)
+  if (!conversationPrev || conversationPrev.profileNameHost !== profileNameHost)
     conversations = [...conversations, conversation];
   return conversation;
 };
