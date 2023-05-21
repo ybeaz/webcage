@@ -6,13 +6,11 @@ const cors = require('cors')
 
 import { ProfileType } from './@types/ProfileType'
 import { ConversationType } from './@types/ConversationType'
+
+import { getCurrentConversation } from './shared/getCurrentConversation'
+import { getJoinedConversation } from './shared/getJoinedConversation'
+import { getExitedConversation } from './shared/getExitedConversation'
 import { formatMessage } from './shared/formatDate'
-import {
-  getConversationByIdConversation,
-  getExitedConversation,
-  getCurrentConversation,
-  getJoinedConversation,
-} from './shared/chatHelper'
 
 const app = express()
 const server = http.createServer(app)
@@ -77,6 +75,8 @@ io.on('connection', socket => {
 
   /**  @description Listen for client message */
   socket.on('chatMessage', msg => {
+    console.info('index [80]', { 'socket.id': socket.id })
+
     const conversation: ConversationType | undefined = getCurrentConversation(
       socket.id
     )
@@ -103,6 +103,8 @@ io.on('connection', socket => {
 
   /**  @description Runs when client disconnects */
   socket.on('disconnect', () => {
+    console.info('index [107]', { 'socket.id': socket.id })
+
     const conversation = getExitedConversation(socket.id)
     const profileNameHost = conversation?.profiles.filter(
       profile => profile.idSocket === socket.id
@@ -115,11 +117,8 @@ io.on('connection', socket => {
       )
 
       /**  @description Current active users and room name */
-
       io.to(conversation.idConversation).emit('conversations', {
-        conversation: getConversationByIdConversation(
-          conversation.idConversation
-        ),
+        conversation,
       })
     }
   })

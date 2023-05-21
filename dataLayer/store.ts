@@ -19,8 +19,15 @@ const ConfigStore = function (rootStore: RootStoreType): void {
   this.rootStore = rootStore
 
   this.getState = (prop: string | undefined): RootStoreType => {
-    let output = rootStore
-    if (prop && rootStore[prop]) output = rootStore[prop]
+    let output = this.rootStore
+    if (prop && this.rootStore[prop]) output = this.rootStore[prop]
+
+    console.info('store [25]', {
+      prop,
+      conversations: this.rootStore.conversations,
+      conversationsLen: this.rootStore.conversations.length,
+    })
+
     return output
   }
 

@@ -1,10 +1,9 @@
 import { ConversationType } from '../@types/ConversationType'
 import { ProfileType } from '../@types/ProfileType'
 import { store } from '../dataLayer/store'
+import { getSortedArray } from './getSortedArray'
 
 const { getState, setState } = store
-
-const getSortedArray = arr => arr.sort((a, b) => a.localeCompare(b))
 
 type GetJoinedConversationPropsType = {
   idSocket: string
@@ -16,6 +15,11 @@ interface GetJoinedConversationType {
   (props: GetJoinedConversationPropsType): ConversationType | undefined
 }
 
+/**
+ * @description Function to
+ * @import import { getJoinedConversation } from '../../../Shared/getJoinedConversation'
+ */
+
 export const getJoinedConversation: GetJoinedConversationType = props => {
   const { idSocket, profileNameHost, profileName } = props
 
@@ -26,15 +30,19 @@ export const getJoinedConversation: GetJoinedConversationType = props => {
   let conversation: ConversationType | undefined = undefined
 
   const conversationPrev = conversations.find(
-    conversation => conversation.idConversation === idConversation
+    (conversation: ConversationType) =>
+      conversation.idConversation === idConversation
   )
 
   // console.info("chatHelper [22]", conversations);
   console.info('chatHelper [36]', {
+    idSocket,
     idConversation,
     profileNameHost,
     profileName,
     conversationPrev,
+    conversations,
+    conversationsLen: conversations.length,
     conversations0: conversations[0],
     profiles0: conversations?.profiles,
     '!conversationPrev?.idConversation': !conversationPrev?.idConversation,
@@ -46,7 +54,8 @@ export const getJoinedConversation: GetJoinedConversationType = props => {
     caseNo = 1
     conversation = {
       idConversation,
-      profiles: [{ idSocket, profileName: profileNameHost }],
+      profiles: [{ idSocket, profileName: profileNameHost, isActive: true }],
+      isActive: true,
     }
     setState({ conversations: [...conversations, conversation] })
   } else if (
@@ -64,7 +73,10 @@ export const getJoinedConversation: GetJoinedConversationType = props => {
     const conversationsNext = [...conversations]
     conversationsNext[indexPrev] = {
       ...conversations[indexPrev],
-      profiles: [...profiles, { idSocket, profileName: profileNameHost }],
+      profiles: [
+        ...profiles,
+        { idSocket, profileName: profileNameHost, isActive: true },
+      ],
     }
     setState({ conversations: conversationsNext })
 
@@ -75,54 +87,11 @@ export const getJoinedConversation: GetJoinedConversationType = props => {
     caseNo,
     idConversation,
     conversations: getState('conversations'),
-    conversationsLen: conversations.length,
+    conversationsLen: getState('conversations').length,
     profiles: conversation?.profiles,
   })
   // console.info('chatHelper [60]', conversations[0].profiles)
   // console.info('\n\n ')
 
   return conversation
-}
-
-export const getCurrentConversation = function (
-  idSocket: string
-): ConversationType | undefined {
-  // console.info('chatHelper [71]', {
-  //   conversations,
-  //   profilesLen: conversations[0].profiles.length,
-  //   profiles: conversations[0].profiles,
-  //   idSocket,
-  // })
-  return getState('conversations').find(conversation =>
-    conversation.profiles.filter(
-      (profile: ProfileType) => profile.idSocket === idSocket
-    )
-  )
-}
-
-export function getExitedConversation(idSocket: string) {
-  const conversation = getState('conversations').find(conversation =>
-    conversation.profiles.filter(
-      (profile: ProfileType) => profile.idSocket === idSocket
-    )
-  )
-
-  const conversationsNext = getState('conversations').filter(
-    conversation =>
-      !conversation.profiles.filter(profile => profile.idSocket === idSocket)
-  )
-  setState({ conversations: conversationsNext })
-
-  return conversation
-}
-
-export function getConversationByIdConversation(
-  idConversation: string
-): ConversationType | undefined {
-  const output = getState('conversations').find(
-    conversation => conversation.idConversation === idConversation
-  )
-
-  // console.info('chatHelper [64]', { conversations, idConversation, output })
-  return output
 }
