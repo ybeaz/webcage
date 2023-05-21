@@ -11,6 +11,8 @@ import { getCurrentConversation } from './shared/getCurrentConversation'
 import { getJoinedConversation } from './shared/getJoinedConversation'
 import { getExitedConversation } from './shared/getExitedConversation'
 import { formatMessage } from './shared/formatDate'
+import { store } from './dataLayer/store'
+const { getState, setState } = store
 
 const app = express()
 const server = http.createServer(app)
@@ -32,11 +34,15 @@ io.on('connection', socket => {
   // console.info("index [28]", { socket });
 
   socket.on('joinConversation', ({ profileNameHost, profileName }) => {
-    const conversation = getJoinedConversation({
+    const conversationsIn = getState('conversations')
+
+    const { conversation, conversations } = getJoinedConversation({
+      conversations: conversationsIn,
       idSocket: socket.id,
       profileNameHost,
       profileName,
     })
+    setState({ conversations })
 
     if (!conversation) return
 

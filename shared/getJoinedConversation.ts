@@ -1,18 +1,19 @@
 import { ConversationType } from '../@types/ConversationType'
 import { ProfileType } from '../@types/ProfileType'
-import { store } from '../dataLayer/store'
 import { getSortedArray } from './getSortedArray'
 
-const { getState, setState } = store
-
 type GetJoinedConversationPropsType = {
+  conversations: ConversationType[]
   idSocket: string
   profileNameHost: string
   profileName: string
 }
 
 interface GetJoinedConversationType {
-  (props: GetJoinedConversationPropsType): ConversationType | undefined
+  (props: GetJoinedConversationPropsType): {
+    conversation: ConversationType | undefined
+    conversations: ConversationType[]
+  }
 }
 
 /**
@@ -21,43 +22,53 @@ interface GetJoinedConversationType {
  */
 
 export const getJoinedConversation: GetJoinedConversationType = props => {
-  const { idSocket, profileNameHost, profileName } = props
+  const {
+    conversations: conversationsIn,
+    idSocket,
+    profileNameHost,
+    profileName,
+  } = props
 
-  const conversations = getState('conversations')
+  // const conversations = getState('conversations')
   const idsProfiles = getSortedArray([profileNameHost, profileName])
   const idConversation = JSON.stringify(idsProfiles)
 
   let conversation: ConversationType | undefined = undefined
 
-  const conversationPrev = conversations.find(
+  const conversationPrev = conversationsIn.find(
     (conversation: ConversationType) =>
       conversation.idConversation === idConversation
   )
 
   // console.info("chatHelper [22]", conversations);
-  console.info('chatHelper [36]', {
-    idSocket,
-    idConversation,
-    profileNameHost,
-    profileName,
-    conversationPrev,
-    conversations,
-    conversationsLen: conversations.length,
-    conversations0: conversations[0],
-    profiles0: conversations?.profiles,
-    '!conversationPrev?.idConversation': !conversationPrev?.idConversation,
-  })
+  // console.info('chatHelper [36]', {
+  //   idSocket,
+  //   idConversation,
+  //   profileNameHost,
+  //   profileName,
+  //   conversationPrev,
+  //   conversationsIn,
+  //   conversationsLen: conversationsIn.length,
+  //   '!conversationPrev?.idConversation': !conversationPrev?.idConversation,
+  // })
 
   let caseNo = 0
+  let conversationsNext: ConversationType[] = []
 
   if (!conversationPrev?.idConversation) {
     caseNo = 1
     conversation = {
       idConversation,
-      profiles: [{ idSocket, profileName: profileNameHost, isActive: true }],
-      isActive: true,
+      profiles: [{ idSocket, profileName: profileNameHost }],
     }
-    setState({ conversations: [...conversations, conversation] })
+
+    conversationsNext = [...conversationsIn, conversation]
+
+    console.info('chatHelper [90]', {
+      caseNo,
+      idConversation,
+      profiles: conversation?.profiles,
+    })
   } else if (
     conversationPrev?.idConversation &&
     conversationPrev?.profiles.length === 1
@@ -65,33 +76,27 @@ export const getJoinedConversation: GetJoinedConversationType = props => {
     caseNo = 2
     const { profiles } = conversationPrev
 
-    const indexPrev = conversations.findIndex(
+    const indexPrev = conversationsIn.findIndex(
       (conversation: ConversationType) =>
         conversation.idConversation === conversationPrev.idConversation
     )
 
-    const conversationsNext = [...conversations]
+    conversationsNext = [...conversationsIn]
     conversationsNext[indexPrev] = {
-      ...conversations[indexPrev],
-      profiles: [
-        ...profiles,
-        { idSocket, profileName: profileNameHost, isActive: true },
-      ],
+      ...conversationsIn[indexPrev],
+      profiles: [...profiles, { idSocket, profileName: profileNameHost }],
     }
-    setState({ conversations: conversationsNext })
 
     conversation = conversationsNext[indexPrev]
   }
 
-  console.info('chatHelper [75]', {
-    caseNo,
-    idConversation,
-    conversations: getState('conversations'),
-    conversationsLen: getState('conversations').length,
-    profiles: conversation?.profiles,
-  })
+  // console.info('chatHelper [75]', {
+  //   caseNo,
+  //   idConversation,
+  //   profiles: conversation?.profiles,
+  // })
   // console.info('chatHelper [60]', conversations[0].profiles)
   // console.info('\n\n ')
 
-  return conversation
+  return { conversation, conversations: conversationsNext }
 }

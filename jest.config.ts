@@ -1,6 +1,5 @@
 export default {
   verbose: true,
-  testURL: 'http://127.0.0.1/',
   moduleFileExtensions: ['js', 'jsx', 'ts', 'tsx'],
   transform: {
     '^.+\\.jsx?$': 'babel-jest',
