@@ -9,10 +9,4 @@ export default {
     '^@/(.*)$': '<rootDir>/src/$1',
   },
   testMatch: ['<rootDir>/**/(*.)test.(js|jsx|ts|tsx)'],
-  globals: {
-    'ts-jest': {
-      babel: true,
-      tsconfig: 'tsconfig.json',
-    },
-  },
 }

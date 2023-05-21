@@ -109,11 +109,23 @@ io.on('connection', socket => {
 
   /**  @description Runs when client disconnects */
   socket.on('disconnect', () => {
-    console.info('index [107]', { 'socket.id': socket.id })
+    // console.info('index [107]', { 'socket.id': socket.id })
 
-    const conversation = getExitedConversation(socket.id)
+    const conversationsIn = getState('conversations')
+
+    const exitedConversation = getExitedConversation({
+      conversations: conversationsIn,
+      idSocket: socket.id,
+    })
+
+    if (!exitedConversation) return
+
+    const { conversation, conversations } = exitedConversation
+
+    setState({ conversations })
+
     const profileNameHost = conversation?.profiles.filter(
-      profile => profile.idSocket === socket.id
+      (profile: ProfileType) => profile.idSocket === socket.id
     )
 
     if (conversation) {

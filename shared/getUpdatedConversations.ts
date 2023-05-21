@@ -5,8 +5,13 @@ import { getCurrentConversation } from './getCurrentConversation'
 
 const { getState, setState } = store
 
+export type GetUpdatedConversationsPropsType = {
+  conversations: ConversationType[]
+  idSocket: string
+}
+
 interface GetUpdatedConversationsType {
-  (idSocket: string): void
+  (props: GetUpdatedConversationsPropsType): ConversationType[]
 }
 
 /**
@@ -14,30 +19,32 @@ interface GetUpdatedConversationsType {
  * @import import { getUpdatedConversations } from './getUpdatedConversations'
  */
 
-export const getUpdatedConversations: GetUpdatedConversationsType =
-  idSocket => {
-    const conversation = getCurrentConversation(idSocket)
-    if (!conversation) return
+export const getUpdatedConversations: GetUpdatedConversationsType = ({
+  conversations,
+  idSocket,
+}) => {
+  const conversation = getCurrentConversation({
+    conversations,
+    idSocket,
+  })
+  if (!conversation) return
 
-    const conversations = getState('conversations')
+  const indexFound = conversations.findIndex(
+    (conversationIn: ConversationType) =>
+      conversationIn.idConversation === conversation.idConversation
+  )
 
-    const indexFound = conversations.findIndex(
-      (conversationIn: ConversationType) =>
-        conversationIn.idConversation === conversation.idConversation
-    )
+  const { profiles } = conversation
+  const profilesNext = profiles.map((profile: ProfileType) => {
+    let output = profile
+    if (profile.idSocket === idSocket) output = { ...profile }
+    return output
+  })
 
-    const { profiles } = conversation
-    const profilesNext = profiles.map((profile: ProfileType) => {
-      let output = profile
-      if (profile.idSocket === idSocket)
-        output = { ...profile, isActive: false }
-      return output
-    })
+  const conversationNext = { ...conversation, profiles: profilesNext }
 
-    const conversationNext = { ...conversation, profiles: profilesNext }
+  let conversationsNext = [...conversations]
+  conversationsNext[indexFound] = conversationNext
 
-    let conversationsNext = [...conversations]
-    conversationsNext[indexFound] = conversationNext
-
-    setState({ conversations: conversationsNext })
-  }
+  return { conversations: conversationsNext }
+}
