@@ -8,7 +8,7 @@ import { ProfileType } from './@types/ProfileType'
 import { ConversationType } from './@types/ConversationType'
 import { formatMessage } from './shared/formatDate'
 import {
-  getConversationsByIdConversation,
+  getConversationByIdConversation,
   getExitedConversation,
   getCurrentConversation,
   getJoinedConversation,
@@ -68,11 +68,8 @@ io.on('connection', socket => {
       )
 
     /**  @description Current active users and room name */
-    console.info('index [70]', { conversation })
-    console.info('index [71]', { profiles: conversation.profiles })
-    console.info('index [72]', {
-      users: getConversationsByIdConversation(conversation.idConversation),
-    })
+    // console.info('index [70]', { conversation })
+    // console.info('index [71]', { profiles: conversation.profiles })
     io.to(conversation.idConversation).emit('conversations', {
       conversation,
     })
@@ -86,6 +83,17 @@ io.on('connection', socket => {
     const profile: ProfileType | undefined = conversation?.profiles.find(
       profile => profile.idSocket === socket.id
     )
+
+    // console.info('index [92]', {
+    //   conversation,
+    //   profiles: conversation?.profiles,
+    //   profile,
+    //   'socket.id': socket.id,
+    //   'formatMessage(profile?.profileName, msg': formatMessage(
+    //     profile?.profileName,
+    //     msg
+    //   ),
+    // })
 
     io.to(conversation?.idConversation).emit(
       'message',
@@ -109,8 +117,9 @@ io.on('connection', socket => {
       /**  @description Current active users and room name */
 
       io.to(conversation.idConversation).emit('conversations', {
-        idConversation: conversation.idConversation,
-        users: getConversationsByIdConversation(conversation.idConversation),
+        conversation: getConversationByIdConversation(
+          conversation.idConversation
+        ),
       })
     }
   })

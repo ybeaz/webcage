@@ -31,10 +31,10 @@ const socket = io('http://localhost:3003')
 socket.emit('joinConversation', { profileNameHost, profileName })
 
 /** @description Get users */
-socket.on('conversations', socket => {
+socket.on('conversations', data => {
   const {
     conversation: { profiles },
-  } = socket
+  } = data
   console.info('main [20]', { profiles })
   outputProfiles(profiles)
 })
