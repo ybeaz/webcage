@@ -22,11 +22,11 @@ const ConfigStore = function (rootStore: RootStoreType): void {
     let output = this.rootStore
     if (prop && this.rootStore[prop]) output = this.rootStore[prop]
 
-    console.info('store [25]', {
-      prop,
-      conversations: this.rootStore.conversations,
-      conversationsLen: this.rootStore.conversations.length,
-    })
+    // console.info('store [25]', {
+    //   prop,
+    //   conversations: this.rootStore.conversations,
+    //   conversationsLen: this.rootStore.conversations.length,
+    // })
 
     return output
   }

@@ -17,7 +17,7 @@ interface GetJoinedConversationType {
 }
 
 /**
- * @description Function to
+ * @description Function to return conversation and conversations when the user joins the conversation
  * @import import { getJoinedConversation } from '../../../Shared/getJoinedConversation'
  */
 
@@ -29,7 +29,6 @@ export const getJoinedConversation: GetJoinedConversationType = props => {
     profileName,
   } = props
 
-  // const conversations = getState('conversations')
   const idsProfiles = getSortedArray([profileNameHost, profileName])
   const idConversation = JSON.stringify(idsProfiles)
 
@@ -39,18 +38,6 @@ export const getJoinedConversation: GetJoinedConversationType = props => {
     (conversation: ConversationType) =>
       conversation.idConversation === idConversation
   )
-
-  // console.info("chatHelper [22]", conversations);
-  // console.info('chatHelper [36]', {
-  //   idSocket,
-  //   idConversation,
-  //   profileNameHost,
-  //   profileName,
-  //   conversationPrev,
-  //   conversationsIn,
-  //   conversationsLen: conversationsIn.length,
-  //   '!conversationPrev?.idConversation': !conversationPrev?.idConversation,
-  // })
 
   let caseNo = 0
   let conversationsNext: ConversationType[] = []
@@ -63,16 +50,7 @@ export const getJoinedConversation: GetJoinedConversationType = props => {
     }
 
     conversationsNext = [...conversationsIn, conversation]
-
-    console.info('chatHelper [90]', {
-      caseNo,
-      idConversation,
-      profiles: conversation?.profiles,
-    })
-  } else if (
-    conversationPrev?.idConversation &&
-    conversationPrev?.profiles.length === 1
-  ) {
+  } else if (conversationPrev?.idConversation) {
     caseNo = 2
     const { profiles } = conversationPrev
 
@@ -82,21 +60,22 @@ export const getJoinedConversation: GetJoinedConversationType = props => {
     )
 
     conversationsNext = [...conversationsIn]
+
+    const profilesTemp = profiles.filter(
+      (profile: ProfileType) => profile.profileName !== profileNameHost
+    )
+    const profilesNext = [
+      ...profilesTemp,
+      { idSocket, profileName: profileNameHost },
+    ]
+
     conversationsNext[indexPrev] = {
       ...conversationsIn[indexPrev],
-      profiles: [...profiles, { idSocket, profileName: profileNameHost }],
+      profiles: profilesNext,
     }
 
     conversation = conversationsNext[indexPrev]
   }
-
-  // console.info('chatHelper [75]', {
-  //   caseNo,
-  //   idConversation,
-  //   profiles: conversation?.profiles,
-  // })
-  // console.info('chatHelper [60]', conversations[0].profiles)
-  // console.info('\n\n ')
 
   return { conversation, conversations: conversationsNext }
 }

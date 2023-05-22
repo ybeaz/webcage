@@ -18,7 +18,7 @@ interface GetExitedConversationType {
 }
 
 /**
- * @description Function to
+ * @description Function to return conversation and conversations when the user exits the conversation
  * @import import { getExitedConversation } from './Shared/getExitedConversation'
  */
 

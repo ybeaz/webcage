@@ -1,11 +1,53 @@
 import { getJoinedConversation } from '../getJoinedConversation'
 
+const consoleDirOptions = {
+  showHidden: true,
+  depth: null,
+  showPrototypes: true,
+}
+
 /**
  * @test yarn jest getJoinedConversation.test
  */
 describe('Test function getJoinedConversation', () => {
   it('test', () => {
     const tests = [
+      {
+        isActive: true,
+        input: {
+          conversations: [
+            {
+              idConversation: '["@rome","@trivedi"]',
+              profiles: [],
+            },
+          ],
+          idSocket: 'bbb123',
+          profileNameHost: '@trivedi',
+          profileName: '@rome',
+        },
+        expected: {
+          conversation: {
+            idConversation: '["@rome","@trivedi"]',
+            profiles: [
+              {
+                idSocket: 'bbb123',
+                profileName: '@trivedi',
+              },
+            ],
+          },
+          conversations: [
+            {
+              idConversation: '["@rome","@trivedi"]',
+              profiles: [
+                {
+                  idSocket: 'bbb123',
+                  profileName: '@trivedi',
+                },
+              ],
+            },
+          ],
+        },
+      },
       {
         isActive: true,
         input: {
@@ -227,18 +269,9 @@ describe('Test function getJoinedConversation', () => {
         const outputed = getJoinedConversation(input)
 
         const { conversation, conversations } = outputed
-        // console.info('getJoinedConversation.test [171]', { outputed })
-        // console.info('getJoinedConversation.test [173]', { conversation })
-        // console.info('getJoinedConversation.test [174]', conversations)
-        // console.info(
-        //   'getJoinedConversation.test [175]',
-        //   conversations[0].profiles
-        // )
-        // if (index < 2)
-        //   console.info(
-        //     'getJoinedConversation.test [176]',
-        //     conversations[1].profiles
-        //   )
+
+        // console.info('\n\n', 'getJoinedConversation.test [279]')
+        // console.dir({ conversation, conversations }, consoleDirOptions)
 
         expect(outputed).toEqual(expected)
       }

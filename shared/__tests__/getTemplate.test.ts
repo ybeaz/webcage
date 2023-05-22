@@ -1,5 +1,11 @@
 import { getTemplate } from '../getTemplate'
 
+const consoleDirOptions = {
+  showHidden: true,
+  depth: null,
+  showPrototypes: true,
+}
+
 /**
  * @test yarn jest getTemplate.test
  */
