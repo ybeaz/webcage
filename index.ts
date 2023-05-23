@@ -9,7 +9,8 @@ import { ConversationType } from './@types/ConversationType'
 
 import { getCurrentConversation } from './shared/getCurrentConversation'
 import { getJoinedConversation } from './shared/getJoinedConversation'
-import { getExitedConversation } from './shared/getExitedConversation'
+import { getConversationsBySocketIdProfilesLtd } from './shared/getConversationsBySocketIdProfilesLtd'
+import { getConversationsCleanedBySocketId } from './shared/getConversationsCleanedBySocketId'
 import { formatMessage } from './shared/formatDate'
 import { store } from './dataLayer/store'
 const { getState, setState } = store
@@ -35,14 +36,14 @@ const io = new Server(server, {
 /**  @description Set public directory */
 app.use(express.static(path.join(__dirname, 'public')))
 
-const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms))
+// const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms))
 
 /**  @description this block will run when the client connects */
 io.on('connection', (socket: any) => {
   // console.info("index [28]", { socket });
 
   socket.on('joinConversation', async ({ profileNameHost, profileName }) => {
-    await delay(100)
+    // await delay(100)
 
     const conversationsIn = getState('conversations')
 
@@ -85,6 +86,8 @@ io.on('connection', (socket: any) => {
         formatMessage('WebCage', `${profileNameHost} has joined the room`)
       )
 
+    console.info('index [88]')
+    console.dir({ conversationsIn: getState('conversations') }, optionsDir)
     /**  @description Current active users and room name */
     io.to(conversation.idConversation).emit('conversations', {
       conversation,
@@ -116,37 +119,39 @@ io.on('connection', (socket: any) => {
   socket.on('disconnect', () => {
     const conversationsIn = getState('conversations')
 
-    const exitedConversation = getExitedConversation({
+    const conversationsDisconnected = getConversationsBySocketIdProfilesLtd({
       conversations: conversationsIn,
       idSocket: socket.id,
     })
 
-    // console.info('\n\n', 'index [130] Exit')
-    // console.dir(
-    //   { 'socket.id': socket.id, conversationsIn, exitedConversation },
-    //   optionsDir
-    // )
-
-    if (!exitedConversation) return
-
-    const { conversation, conversations } = exitedConversation
-
+    const conversations = getConversationsCleanedBySocketId({
+      conversations: conversationsIn,
+      idSocket: socket.id,
+    })
     setState({ conversations })
 
-    const profileNameHost = conversation?.profiles.filter(
-      (profile: ProfileType) => profile.idSocket === socket.id
+    console.log('index [140]')
+    console.dir(
+      {
+        idSocket: socket.id,
+      },
+      optionsDir
     )
 
-    if (conversation) {
-      io.to(conversation.idConversation).emit(
-        'message',
-        formatMessage('WebCage', `${profileNameHost} has left the room`)
-      )
-
-      /**  @description Current active users and room name */
-      io.to(conversation.idConversation).emit('conversations', {
-        conversation,
+    if (conversationsDisconnected.length) {
+      conversationsDisconnected.forEach((conversation: ConversationType) => {
+        const { idConversation, profiles } = conversation
+        const { profileName } = profiles[0]
+        io.to(idConversation).emit(
+          'message',
+          formatMessage('WebCage', `${profileName} has left the room`)
+        )
       })
+
+      // /**  @description Current active users and room name */
+      // io.to(conversation.idConversation).emit('conversations', {
+      //   conversation,
+      // })
     }
   })
 })
