@@ -77,7 +77,7 @@ io.on('connection', (socket: any) => {
 
     /**  @description General welcome */
     const { idConversation } = conversation
-    const text = 'Messages are limited to this room!'
+    const text = 'Messages are limited to this conversation!'
     let idMessage = nanoid()
     const message: MessageType = {
       idMessage,
@@ -94,14 +94,14 @@ io.on('connection', (socket: any) => {
       idMessage,
       idConversation,
       idProfile: profileNameHost,
-      text: `WebCage ${profileNameHost} has joined the room`,
+      text: `${profileNameHost} has joined`,
       createdAt: +new Date(),
     }
     socket.broadcast.to(idConversation).emit('message', message2)
 
-    console.info('index [88]')
-    console.dir({ conversationsIn: getState('conversations') }, optionsDir)
-    /**  @description Current active users and room name */
+    // console.info('index [88]')
+    // console.dir({ conversationsIn: getState('conversations') }, optionsDir)
+
     io.to(idConversation).emit('conversations', {
       conversation,
     })
@@ -157,7 +157,7 @@ io.on('connection', (socket: any) => {
           idMessage,
           idConversation,
           idProfile,
-          text: `${profileName} has left the room`,
+          text: `${profileName} has left`,
           createdAt: +new Date(),
         }
         io.to(idConversation).emit('message', message4)
