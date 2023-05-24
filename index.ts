@@ -6,12 +6,15 @@ import cors from 'cors'
 
 import { ProfileType } from './@types/ProfileType'
 import { ConversationType } from './@types/ConversationType'
+import { MessageType } from './@types/MessageType'
 
-import { getCurrentConversation } from './shared/getCurrentConversation'
+import { getIdProfileByProfileName } from './shared/getIdProfileByProfileName'
 import { getJoinedConversation } from './shared/getJoinedConversation'
 import { getConversationsBySocketIdProfilesLtd } from './shared/getConversationsBySocketIdProfilesLtd'
 import { getConversationsCleanedBySocketId } from './shared/getConversationsCleanedBySocketId'
-import { formatMessage } from './shared/formatDate'
+
+import { profiles } from './ContentMock/profilesMock'
+
 import { store } from './dataLayer/store'
 const { getState, setState } = store
 
@@ -73,18 +76,24 @@ io.on('connection', (socket: any) => {
     await socket.join(conversation.idConversation)
 
     /**  @description General welcome */
-    socket.emit(
-      'message',
-      formatMessage('WebCage', 'Messages are limited to this room! ')
-    )
+    const { idConversation } = conversation
+    const text = 'Messages are limited to this room!'
+    const message: MessageType = {
+      idConversation,
+      idProfile: '',
+      text,
+      createdAt: +new Date(),
+    }
+    socket.emit('message', message)
 
     /**  @description  Broadcast everytime users connects */
-    socket.broadcast
-      .to(conversation.idConversation)
-      .emit(
-        'message',
-        formatMessage('WebCage', `${profileNameHost} has joined the room`)
-      )
+    const message2: MessageType = {
+      idConversation,
+      idProfile: profileNameHost,
+      text: `WebCage ${profileNameHost} has joined the room`,
+      createdAt: +new Date(),
+    }
+    socket.broadcast.to(conversation.idConversation).emit('message', message2)
 
     console.info('index [88]')
     console.dir({ conversationsIn: getState('conversations') }, optionsDir)
@@ -95,24 +104,18 @@ io.on('connection', (socket: any) => {
   })
 
   /**  @description Listen for client message */
-  socket.on('chatMessage', msg => {
+  socket.on('chatMessage', (chatMessage: MessageType) => {
     const conversationsIn = getState('conversations')
+    const { idConversation, idProfile, text } = chatMessage
+    const message3: MessageType = {
+      idConversation,
+      idProfile,
+      text,
+      createdAt: +new Date(),
+    }
+    console.info('index [80]', { text, 'socket.id': socket.id })
 
-    console.info('index [80]', { msg, 'socket.id': socket.id })
-
-    const conversation: ConversationType | undefined = getCurrentConversation({
-      conversations: conversationsIn,
-      idSocket: socket.id,
-    })
-    const profile: ProfileType | undefined = conversation?.profiles.find(
-      profile => profile.idSocket === socket.id
-    )
-
-    if (conversation?.idConversation)
-      io.to(conversation.idConversation).emit(
-        'message',
-        formatMessage(profile?.profileName, msg)
-      )
+    io.to(idConversation).emit('message', message3)
   })
 
   /**  @description Runs when client disconnects */
@@ -142,10 +145,14 @@ io.on('connection', (socket: any) => {
       conversationsDisconnected.forEach((conversation: ConversationType) => {
         const { idConversation, profiles } = conversation
         const { profileName } = profiles[0]
-        io.to(idConversation).emit(
-          'message',
-          formatMessage('WebCage', `${profileName} has left the room`)
-        )
+        const idProfile = getIdProfileByProfileName(profiles, profileName)
+        const message4: MessageType = {
+          idConversation,
+          idProfile,
+          text: `${profileName} has left the room`,
+          createdAt: +new Date(),
+        }
+        io.to(idConversation).emit('message', message4)
       })
 
       // /**  @description Current active users and room name */

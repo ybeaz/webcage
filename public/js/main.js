@@ -18,12 +18,96 @@ const respondent = document.getElementById('respondent')
 • socket.on(eventName, callback): Listens for a specific event on the client side.
 */
 
+const profiles = [
+  {
+    idProfile: '0',
+    idUser: '0',
+    profileName: '@',
+    nameFirst: '',
+    nameLast: '',
+    uriAvatar: '',
+    phones: [],
+    emails: [],
+    messengers: [],
+    locations: [],
+    serviceSpecs: [],
+    summary: '',
+  },
+  {
+    idProfile: '1',
+    idUser: '1',
+    profileName: '@rome',
+    nameFirst: 'Roman',
+    nameLast: 'Ches',
+    uriAvatar: 'https://r1.userto.com/img/avatar-rome.jpg', // https://yourails.com/images/sphinx-01.jpg
+    phones: ['415-650-9893'],
+    emails: ['t3531350@yahoo.com'],
+    messengers: [{ name: 'Telegram', profileName: '@rome_sfba2' }],
+    locations: ['Remote', 'San Francisco, CA'],
+    serviceSpecs: ['Full Stack Developer', 'Machine Learning'],
+    summary: '',
+  },
+  {
+    idProfile: '2',
+    idUser: '2',
+    profileName: '@smid',
+    nameFirst: 'Dmitrii',
+    nameLast: 'Smid',
+    uriAvatar: 'https://r1.userto.com/img/avatar-smid.jpg',
+    phones: ['415-340-9293'],
+    emails: ['smiddist@gmail.com'],
+    messengers: [],
+    locations: ['San Francisco, CA'],
+    serviceSpecs: ['Electrician', 'Appliance technician'],
+    summary:
+      'Motivated and detail-oriented electrician with experience in installing and maintaining electrical systems in residential settings. Skilled in using hand and power tools to complete tasks accurately and efficiently.',
+  },
+  {
+    idProfile: '4',
+    idUser: '4',
+    profileName: '@wilson',
+    nameFirst: 'Alicia',
+    nameLast: 'Wilson',
+    uriAvatar:
+      'https://mindbodygreen-res.cloudinary.com/image/upload/c_fill,g_auto,w_50,h_50,q_auto,f_auto,fl_lossy/dpr_2.0/usr/RSRzgow.png',
+    phones: ['650-000-0000'],
+    emails: ['example2@site.com'],
+    messengers: [],
+    locations: ['San Moon, CA'],
+    serviceSpecs: ['Technical support'],
+    summary: '',
+  },
+  {
+    idProfile: '3',
+    idUser: '3',
+    profileName: '@trivedi',
+    nameFirst: 'Jack',
+    nameLast: 'Trivedi',
+    uriAvatar:
+      'https://raw.githubusercontent.com/webkul/vivid/master/icons/badge.svg',
+    phones: ['415-000-0000'],
+    emails: ['example@site.com'],
+    messengers: [],
+    locations: ['San City, CA'],
+    serviceSpecs: ['Technical recruiter'],
+    summary: '',
+  },
+]
+
+const getIdProfileByProfileName = profileName =>
+  profiles.find(profile => profile.profileName === profileName)?.idProfile
+
+const getProfileNameByIdProfile = idProfile =>
+  profiles.find(profile => profile.idProfile === idProfile)?.profileName
+
 /** @description Get profileNameHost and from URL */
 const { profileNameHost, profileName } = Qs.parse(location.search, {
   ignoreQueryPrefix: true,
 })
 
-console.info('main [11]', { profileNameHost, profileName })
+const getSortedArray = arr => arr.sort((a, b) => a.localeCompare(b))
+const idsProfiles = getSortedArray([profileNameHost, profileName])
+const idConversation = JSON.stringify(idsProfiles)
 
 const socket = io('http://localhost:3003')
 
@@ -35,14 +119,14 @@ socket.on('conversations', data => {
   const {
     conversation: { profiles },
   } = data
-  console.info('main [20]', { profiles })
   outputProfiles(profiles)
 })
 
 /** @description Message from server */
 socket.on('message', message => {
-  console.log(message)
-  outputMessage(message)
+  const { idConversation, idProfile, text, createdAt } = message
+  const profileName = getProfileNameByIdProfile(idProfile)
+  outputMessage({ profileName, text, createdAt })
 
   /** @description Scroll down */
   chatMessages.scrollTop = chatMessages.scrollHeight
@@ -62,7 +146,9 @@ chatForm.addEventListener('submit', e => {
   }
 
   /** @description Emit message to server */
-  socket.emit('chatMessage', msg)
+  const idProfile = getIdProfileByProfileName(profileNameHost)
+  const chatMessage = { idConversation, idProfile, text: msg }
+  socket.emit('chatMessage', chatMessage)
 
   /** @description Clear input */
   e.target.elements.msg.value = ''
@@ -71,13 +157,14 @@ chatForm.addEventListener('submit', e => {
 
 /** @description Output message to DOM */
 function outputMessage(message) {
-  console.info('main [74]', { message })
+  const dateTime = new Date(message.createdAt).toLocaleTimeString('en-US')
+
   const div = document.createElement('div')
   div.classList.add('message')
   const p = document.createElement('p')
   p.classList.add('meta')
-  p.innerText = message.profileName
-  p.innerHTML += `<span>${message.time}</span>`
+  p.innerText = message.profileName ? message.profileName : 'System message'
+  p.innerHTML += `<span>${dateTime}</span>`
   div.appendChild(p)
   const para = document.createElement('p')
   para.classList.add('text')
