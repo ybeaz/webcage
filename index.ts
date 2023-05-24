@@ -2,7 +2,7 @@ import path from 'path'
 import http from 'http'
 import express from 'express'
 import { Server } from 'socket.io'
-import cors from 'cors'
+import { nanoid } from 'nanoid'
 
 import { ProfileType } from './@types/ProfileType'
 import { ConversationType } from './@types/ConversationType'
@@ -78,7 +78,9 @@ io.on('connection', (socket: any) => {
     /**  @description General welcome */
     const { idConversation } = conversation
     const text = 'Messages are limited to this room!'
+    let idMessage = nanoid()
     const message: MessageType = {
+      idMessage,
       idConversation,
       idProfile: '',
       text,
@@ -87,18 +89,20 @@ io.on('connection', (socket: any) => {
     socket.emit('message', message)
 
     /**  @description  Broadcast everytime users connects */
+    idMessage = nanoid()
     const message2: MessageType = {
+      idMessage,
       idConversation,
       idProfile: profileNameHost,
       text: `WebCage ${profileNameHost} has joined the room`,
       createdAt: +new Date(),
     }
-    socket.broadcast.to(conversation.idConversation).emit('message', message2)
+    socket.broadcast.to(idConversation).emit('message', message2)
 
     console.info('index [88]')
     console.dir({ conversationsIn: getState('conversations') }, optionsDir)
     /**  @description Current active users and room name */
-    io.to(conversation.idConversation).emit('conversations', {
+    io.to(idConversation).emit('conversations', {
       conversation,
     })
   })
@@ -107,7 +111,9 @@ io.on('connection', (socket: any) => {
   socket.on('chatMessage', (chatMessage: MessageType) => {
     const conversationsIn = getState('conversations')
     const { idConversation, idProfile, text } = chatMessage
+    const idMessage = nanoid()
     const message3: MessageType = {
+      idMessage,
       idConversation,
       idProfile,
       text,
@@ -146,7 +152,9 @@ io.on('connection', (socket: any) => {
         const { idConversation, profiles } = conversation
         const { profileName } = profiles[0]
         const idProfile = getIdProfileByProfileName(profiles, profileName)
+        const idMessage = nanoid()
         const message4: MessageType = {
+          idMessage,
           idConversation,
           idProfile,
           text: `${profileName} has left the room`,

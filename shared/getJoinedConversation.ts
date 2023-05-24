@@ -1,6 +1,8 @@
 import { ConversationType } from '../@types/ConversationType'
 import { ProfileType } from '../@types/ProfileType'
 import { getSortedArray } from './getSortedArray'
+import { getIdProfileByProfileName } from './getIdProfileByProfileName'
+import { profiles } from '../ContentMock/profilesMock'
 
 type GetJoinedConversationPropsType = {
   conversations: ConversationType[]
@@ -29,7 +31,10 @@ export const getJoinedConversation: GetJoinedConversationType = props => {
     profileName,
   } = props
 
-  const idsProfiles = getSortedArray([profileNameHost, profileName])
+  const idProfileHost = getIdProfileByProfileName(profiles, profileNameHost)
+  const idProfile = getIdProfileByProfileName(profiles, profileName)
+
+  const idsProfiles = getSortedArray([idProfileHost, idProfile])
   const idConversation = JSON.stringify(idsProfiles)
 
   let conversation: ConversationType | undefined = undefined

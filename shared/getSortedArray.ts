@@ -3,7 +3,7 @@ interface GetSortedArrayType {
 }
 
 /**
- * @description Function to
+ * @description Function to sort array of strings
  * @import import { getSortedArray } from '../../../Shared/getSortedArray'
  */
 

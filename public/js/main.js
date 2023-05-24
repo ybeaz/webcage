@@ -106,7 +106,11 @@ const { profileNameHost, profileName } = Qs.parse(location.search, {
 })
 
 const getSortedArray = arr => arr.sort((a, b) => a.localeCompare(b))
-const idsProfiles = getSortedArray([profileNameHost, profileName])
+
+const idProfileHost = getIdProfileByProfileName(profileNameHost)
+const idProfile = getIdProfileByProfileName(profileName)
+
+const idsProfiles = getSortedArray([idProfileHost, idProfile])
 const idConversation = JSON.stringify(idsProfiles)
 
 const socket = io('http://localhost:3003')

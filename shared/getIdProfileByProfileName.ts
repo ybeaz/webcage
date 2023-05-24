@@ -1,9 +1,9 @@
 interface GetIdProfileByProfileNameType {
-  (profiles: any[], profileName: string | undefined): any
+  (profiles: any[], profileName: string | undefined): string | undefined
 }
 
 /**
- * @description Function to
+ * @description Function to get idProfile by profileName from profiles
  * @import import { getIdProfileByProfileName } from './shared/getIdProfileByProfileName'
  */
 
