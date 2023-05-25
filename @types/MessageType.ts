@@ -7,8 +7,8 @@ export type MessageType = {
   idConversation: string
   idProfile: IdUserType
   text: string
-  idMessage?: string
-  createdAt?: number
+  idMessage: string
+  createdAt: number
   position?: string
   isTail?: boolean
 }

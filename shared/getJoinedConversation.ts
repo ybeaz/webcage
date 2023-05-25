@@ -37,14 +37,13 @@ export const getJoinedConversation: GetJoinedConversationType = props => {
   const idsProfiles = getSortedArray([idProfileHost, idProfile])
   const idConversation = JSON.stringify(idsProfiles)
 
-  let conversation: ConversationType | undefined = undefined
-
   const conversationPrev = conversationsIn.find(
     (conversation: ConversationType) =>
       conversation.idConversation === idConversation
   )
 
   let caseNo = 0
+  let conversation: ConversationType | undefined = undefined
   let conversationsNext: ConversationType[] = []
 
   if (!conversationPrev?.idConversation) {

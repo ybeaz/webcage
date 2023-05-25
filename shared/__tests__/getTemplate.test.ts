@@ -24,7 +24,8 @@ describe('Test function getTemplate', () => {
       if (isActive) {
         const outputed = getTemplate()
 
-        console.info('getTemplate [21]', { outputed })
+        console.info('\n\n', 'getTemplate [27]')
+        console.dir({ outputed }, consoleDirOptions)
 
         // expect(outputed).toEqual(expected)
       }
