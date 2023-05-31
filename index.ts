@@ -2,10 +2,24 @@ import path from 'path'
 import http from 'http'
 import express from 'express'
 import { Server } from 'socket.io'
-
+const cors = require('cors')
 import { getConnectedOn } from './shared/getConnectedOn'
 
 const app = express()
+
+const corsOptions = {
+  origin: '*',
+  methods: ['GET', 'POST'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+}
+
+app.use(cors(corsOptions))
+
+app.use((req, res, next) => {
+  res.setHeader('Referrer-Policy', 'origin') // Change the value based on your requirements
+  next()
+})
+
 const server = http.createServer(app)
 
 /**

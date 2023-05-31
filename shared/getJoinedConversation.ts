@@ -2,13 +2,13 @@ import { ConversationType } from '../@types/ConversationType'
 import { ProfileType } from '../@types/ProfileType'
 import { getSortedArray } from './getSortedArray'
 import { getIdProfileByProfileName } from './getIdProfileByProfileName'
-import { profiles } from '../ContentMock/profilesMock'
+import { profiles } from '../contentMock/profilesMock'
 
 type GetJoinedConversationPropsType = {
   conversations: ConversationType[]
   idSocket: string
-  profileNameHost: string
-  profileName: string
+  idProfileHost: string
+  idProfile: string
 }
 
 interface GetJoinedConversationType {
@@ -27,12 +27,9 @@ export const getJoinedConversation: GetJoinedConversationType = props => {
   const {
     conversations: conversationsIn,
     idSocket,
-    profileNameHost,
-    profileName,
+    idProfileHost,
+    idProfile,
   } = props
-
-  const idProfileHost = getIdProfileByProfileName(profiles, profileNameHost)
-  const idProfile = getIdProfileByProfileName(profiles, profileName)
 
   const idsProfiles = getSortedArray([idProfileHost, idProfile])
   const idConversation = JSON.stringify(idsProfiles)
@@ -50,7 +47,7 @@ export const getJoinedConversation: GetJoinedConversationType = props => {
     caseNo = 1
     conversation = {
       idConversation,
-      profiles: [{ idSocket, profileName: profileNameHost }],
+      profiles: [{ idSocket, idProfile: idProfileHost }],
     }
 
     conversationsNext = [...conversationsIn, conversation]
@@ -66,11 +63,11 @@ export const getJoinedConversation: GetJoinedConversationType = props => {
     conversationsNext = [...conversationsIn]
 
     const profilesTemp = profiles.filter(
-      (profile: ProfileType) => profile.profileName !== profileNameHost
+      (profile: ProfileType) => profile.idProfile !== idProfileHost
     )
     const profilesNext = [
       ...profilesTemp,
-      { idSocket, profileName: profileNameHost },
+      { idSocket, idProfile: idProfileHost },
     ]
 
     conversationsNext[indexPrev] = {

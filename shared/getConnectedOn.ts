@@ -9,6 +9,7 @@ import { getJoinedConversation } from './getJoinedConversation'
 import { getConversationsBySocketIdProfilesLtd } from './getConversationsBySocketIdProfilesLtd'
 import { getConversationsCleanedBySocketId } from './getConversationsCleanedBySocketId'
 import { store } from '../dataLayer/store'
+import { EventType } from '../@types/EventType'
 const { getState, setState } = store
 
 interface GetConnectedOnType {
@@ -22,14 +23,14 @@ interface GetConnectedOnType {
 
 export const getConnectedOn: GetConnectedOnType = io => {
   io.on('connection', (socket: any) => {
-    socket.on('joinConversation', async ({ profileNameHost, profileName }) => {
+    socket.on('joinConversation', async ({ idProfileHost, idProfile }) => {
       const conversationsIn = getState('conversations')
 
       const { conversation, conversations } = getJoinedConversation({
         conversations: conversationsIn,
         idSocket: socket.id,
-        profileNameHost,
-        profileName,
+        idProfileHost,
+        idProfile,
       })
       setState({ conversations })
 
@@ -45,6 +46,7 @@ export const getConnectedOn: GetConnectedOnType = io => {
         idMessage,
         idConversation,
         idProfile: '',
+        eventType: EventType['joinConversation'],
         text,
         createdAt: +new Date(),
       }
@@ -55,8 +57,9 @@ export const getConnectedOn: GetConnectedOnType = io => {
       const message2: MessageType = {
         idMessage,
         idConversation,
-        idProfile: profileNameHost,
-        text: `${profileNameHost} has joined`,
+        idProfile,
+        eventType: EventType['joinConversation'],
+        text: `user with id ${idProfileHost} has joined`,
         createdAt: +new Date(),
       }
       socket.broadcast.to(idConversation).emit('message', message2)
@@ -75,10 +78,15 @@ export const getConnectedOn: GetConnectedOnType = io => {
         idMessage,
         idConversation,
         idProfile,
+        eventType: EventType['chatMessage'],
         text,
         createdAt: +new Date(),
       }
-      console.info('index [80]', { text, 'socket.id': socket.id })
+      console.info('index [80]', {
+        text,
+        'socket.id': socket.id,
+        eventType: message3.eventType,
+      })
 
       io.to(idConversation).emit('message', message3)
     })
@@ -101,14 +109,14 @@ export const getConnectedOn: GetConnectedOnType = io => {
       if (conversationsDisconnected.length) {
         conversationsDisconnected.forEach((conversation: ConversationType) => {
           const { idConversation, profiles } = conversation
-          const { profileName } = profiles[0]
-          const idProfile = getIdProfileByProfileName(profiles, profileName)
+          const { idProfile } = profiles[0]
           const idMessage = nanoid()
           const message4: MessageType = {
             idMessage,
             idConversation,
             idProfile,
-            text: `${profileName} has left`,
+            eventType: EventType['disconnectConversation'],
+            text: `${idProfile} has left`,
             createdAt: +new Date(),
           }
           io.to(idConversation).emit('message', message4)

@@ -113,10 +113,17 @@ const idProfile = getIdProfileByProfileName(profileName)
 const idsProfiles = getSortedArray([idProfileHost, idProfile])
 const idConversation = JSON.stringify(idsProfiles)
 
-const socket = io('http://localhost:3003')
+const SERVER_HOST = 'http://localhost:3003'
+// const SERVER_HOST = 'https://yourails.com'
+
+const socket = io(SERVER_HOST, {
+  cors: {
+    origin: '*',
+  },
+})
 
 /** @description Join chatroom */
-socket.emit('joinConversation', { profileNameHost, profileName })
+socket.emit('joinConversation', { idProfileHost, idProfile })
 
 /** @description Get users */
 socket.on('conversations', data => {
@@ -128,9 +135,9 @@ socket.on('conversations', data => {
 
 /** @description Message from server */
 socket.on('message', message => {
-  const { idConversation, idProfile, text, createdAt } = message
+  const { idConversation, idProfile, text, createdAt, eventType } = message
   const profileName = getProfileNameByIdProfile(idProfile)
-  outputMessage({ profileName, text, createdAt })
+  outputMessage({ profileName, text, createdAt, eventType })
 
   /** @description Scroll down */
   chatMessages.scrollTop = chatMessages.scrollHeight
@@ -161,18 +168,21 @@ chatForm.addEventListener('submit', e => {
 
 /** @description Output message to DOM */
 function outputMessage(message) {
-  const dateTime = new Date(message.createdAt).toLocaleTimeString('en-US')
+  const { idProfile, text, createdAt, eventType } = message
+
+  const dateTime = new Date(createdAt).toLocaleTimeString('en-US')
+  const profileName = getProfileNameByIdProfile(idProfile)
 
   const div = document.createElement('div')
   div.classList.add('message')
   const p = document.createElement('p')
   p.classList.add('meta')
-  p.innerText = message.profileName ? message.profileName : 'System message'
+  p.innerText = profileName ? profileName : 'System message'
   p.innerHTML += `<span>${dateTime}</span>`
   div.appendChild(p)
   const para = document.createElement('p')
   para.classList.add('text')
-  para.innerText = message.text
+  para.innerText = `eventType: ${eventType}\n${text}`
   div.appendChild(para)
   document.querySelector('.chat-messages').appendChild(div)
 }
@@ -187,7 +197,8 @@ function outputProfiles(profiles) {
   userList.innerHTML = ''
   profiles.forEach(profile => {
     const li = document.createElement('li')
-    li.innerText = profile.profileName
+    const profileName = getProfileNameByIdProfile(profile.idProfile)
+    li.innerText = profileName
     userList.appendChild(li)
   })
 }
