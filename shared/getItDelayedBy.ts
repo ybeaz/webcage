@@ -3,7 +3,7 @@ interface GetItDelayedByType {
 }
 
 /**
- * @description Function to
+ * @description Function to delay by number of ms
  * @import import { getItDelayedBy } from '../../../Shared/getItDelayedBy'
  */
 export const getItDelayedBy: GetItDelayedByType = ms =>

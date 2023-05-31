@@ -9,16 +9,16 @@ export type ProfileType = {
   idSocket?: string
   idProfile?: string | number
   idUser?: IdUserType
+  contacts?: string[]
+  emails?: string[]
+  locations?: string[]
+  messengers?: MessengerType[]
   nameFirst?: string
   nameLast?: string
-  uriAvatar?: string
-  profileName?: string
   phones?: (string | number | undefined)[]
-  emails?: string[]
-  messengers?: MessengerType[]
-  serviceSpecs?: string[]
-  locations?: string[]
-  contacts?: string[]
+  profileName?: string
   serviceSections?: []
+  serviceSpecs?: string[]
   summary?: string
+  uriAvatar?: string
 }
